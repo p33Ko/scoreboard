@@ -28,19 +28,29 @@ module.exports.EDIT_NAME = (req, res) => {
 };
 
 module.exports.EDIT_DIRECTION = (req, res) => {
-  ScoreboardSchema.update({ scoreDirection: req.body.sorted }).then(
-    (result) => {
-      // if ("ASC") {
-      //   scoreDirection.sort() - 1;
-      // } else {
-      //   scoreDirection.sort();
-      // }
-      return res.status(200).json({
-        statusMessage: "Direction has been changed successfully",
-        sorted: result,
-      });
+  const selectedScoreboard = ScoreboardSchema.findOne({ _id: req.params.id });
+
+  function direction(value) {
+    switch (value) {
+      case "ASC":
+        value = "DESC";
+        break;
+      case "DESC":
+        value = "ASC";
     }
-  );
+    return value;
+  }
+  ScoreboardSchema.updateOne(
+    {
+      _id: req.params.id,
+    },
+    { scoreDirection: direction(selectedScoreboard.scoreDirection) }
+  ).then((result) => {
+    return res.status(200).json({
+      statusMessage: "Direction has been changed successfully",
+      scoreDirection: result,
+    });
+  });
 };
 
 module.exports.GET_SCOREBOARDS = function (req, res) {
